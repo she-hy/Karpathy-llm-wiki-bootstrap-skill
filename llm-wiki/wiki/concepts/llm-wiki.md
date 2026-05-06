@@ -1,41 +1,28 @@
 ---
 title: LLM Wiki
 type: concept
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [llm-wiki, knowledge-base, agents, markdown]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [llm-wiki, knowledge-base, markdown]
 ---
 
-# LLM Wiki
+An **LLM Wiki** is a persistent, LLM-maintained Markdown knowledge base compiled from raw sources. The source presents it as a middle layer between immutable documents and user questions: the LLM reads sources once, extracts durable knowledge, and keeps the wiki current as sources and questions accumulate.
 
-An LLM Wiki is a persistent, interlinked markdown knowledge base maintained by an LLM rather than manually authored page by page [LLM Wiki](../sources/llm-wiki-pattern.md). The central idea is that the LLM incrementally compiles knowledge into a durable artifact and keeps it current, instead of reconstructing answers from raw documents every time a question is asked. `(high confidence)`
+## Key Properties
 
-## Defining Properties
+- The wiki is persistent rather than regenerated for each question.
+- The LLM owns summaries, cross-references, entity pages, concept pages, comparisons, synthesis, and bookkeeping.
+- The human owns source curation, exploration, emphasis, and judgment.
+- The schema gives the agent repeatable operating rules.
 
-- It sits between the user and the raw source corpus.
-- It is persistent: pages accumulate, cross-references persist, and synthesis compounds.
-- It is editable by the LLM as the primary maintainer of the `wiki/` layer.
-- It is governed by an explicit schema file that defines ingest, query, and lint behavior.
+## Why It Matters
 
-## Minimal Architecture
-
-The pattern depends on three layers:
-
-1. Immutable raw sources
-2. LLM-maintained wiki pages
-3. A schema file that constrains the LLM's behavior
-
-That separation is formalized in [[source-of-truth-separation]].
-
-## Why It Differs From Generic Chat Workflows
-
-The wiki is not just storage for notes. It is a continuously updated knowledge artifact that preserves links, contradictions, comparisons, and synthesis between sources. That makes it closer to a maintained codebase than to a chat log, and it explains why the source compares Obsidian to an IDE and the LLM to a programmer [LLM Wiki](../sources/llm-wiki-pattern.md).
+The pattern tries to convert knowledge work from repeated retrieval into accumulated structure. It is especially relevant when subtle questions require connecting many sources, because those connections can already be filed in the wiki.
 
 ## Related Pages
 
-- [[rag]]
-- [[rag-vs-llm-wiki]]
-- [[wiki-operations-loop]]
-- [[human-ai-maintenance-split]]
-- [[why-llm-wikis-work]]
+- [[source-of-truth-separation]]
+- [[persistent-compounding-artifact]]
+- [[schema-as-operating-contract]]
+- [RAG vs LLM Wiki](../comparisons/rag-vs-llm-wiki.md)

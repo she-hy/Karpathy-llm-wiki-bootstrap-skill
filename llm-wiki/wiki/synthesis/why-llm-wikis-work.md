@@ -1,40 +1,30 @@
 ---
 title: Why LLM Wikis Work
 type: synthesis
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [synthesis, maintenance, knowledge-base, memex]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [synthesis, maintenance, knowledge-base]
 ---
 
-# Why LLM Wikis Work
+The source's central argument is that knowledge bases fail because maintenance is tedious, not because humans dislike structured knowledge. Updating cross-references, summaries, contradictions, indexes, and logs is work that becomes more expensive as a wiki grows.
 
-The first source's deepest thesis is that knowledge systems usually fail not because the ideas are bad, but because maintenance is too expensive [LLM Wiki](../sources/llm-wiki-pattern.md). The LLM Wiki pattern works by moving that maintenance burden onto an LLM, which can update cross-links, summaries, and consistency markers across many files in one pass. `(high confidence)`
+LLMs change that maintenance equation. They can touch many Markdown files in one pass, keep structure consistent, and perform recurring bookkeeping without boredom. The wiki becomes practical because the human can focus on source selection, review, and questions.
 
-## The Maintenance Thesis
+## Mechanism
 
-Traditional personal or team wikis decay because upkeep scales poorly:
+1. Raw documents remain stable.
+2. The LLM compiles durable summaries and concept pages.
+3. Each ingest improves the maintained knowledge layer.
+4. Useful query answers can become permanent artifacts.
+5. Linting catches drift, missing links, stale claims, and gaps.
 
-- summaries go stale
-- contradictions remain unresolved
-- cross-links do not get updated
-- useful analyses disappear into chat history or meeting memory
+## Limits
 
-The source argues that LLMs are unusually well matched to this style of repetitive editorial maintenance.
+The pattern still depends on human judgment. The LLM should maintain and synthesize, but the human decides what sources matter and whether the emerging interpretation is useful.
 
-## Why The Pattern Feels Different
+## Related Pages
 
-- It compounds: each ingest and useful query can leave the wiki better than before.
-- It preserves structure: links, comparisons, and contradictions remain visible.
-- It stays inspectable: the artifact is plain markdown, not a hidden latent state.
-- It keeps humans focused on curation and interpretation rather than filing overhead.
-
-## Historical Framing
-
-The source places this pattern in the lineage of Memex: a curated personal knowledge store where the associations between documents matter as much as the documents themselves [LLM Wiki](../sources/llm-wiki-pattern.md). In that framing, LLMs supply the missing maintenance layer that earlier visions could not operationalize.
-
-## Open Questions
-
-- How much human review is needed before maintenance errors become harmful?
-- Which parts of the workflow should remain manual in higher-stakes domains?
-- When does lightweight markdown navigation need to be augmented by stronger search tooling?
+- [[llm-wiki]]
+- [[llm-owned-wiki-maintenance]]
+- [[persistent-compounding-artifact]]

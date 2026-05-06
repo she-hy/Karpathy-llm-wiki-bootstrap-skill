@@ -1,28 +1,28 @@
 ---
 title: Source-of-Truth Separation
 type: concept
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [architecture, raw-sources, derivation, discipline]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [architecture, sources, evidence]
 ---
 
-# Source-of-Truth Separation
+**Source-of-truth separation** is the rule that raw sources and derived wiki pages have different responsibilities.
 
-The source insists on a strict division between immutable raw inputs and editable derived knowledge [LLM Wiki](../sources/llm-wiki-pattern.md). Raw documents remain the source of truth in `raw/`, while the LLM is allowed to freely rewrite and reorganize the derived pages in `wiki/`. `(high confidence)`
+## Raw Layer
 
-## Why This Matters
+The raw layer contains source documents such as articles, papers, books, images, data files, meeting notes, or journals. It is the evidence layer and should not be rewritten by the agent after ingest.
 
-- It preserves evidence integrity: source materials are never silently rewritten.
-- It allows the wiki to evolve aggressively without losing provenance.
-- It makes the knowledge base regenerable: if needed, derived pages can be revised or rebuilt from stable inputs.
+## Wiki Layer
 
-## Architectural Form
+The wiki layer contains summaries, entities, concepts, comparisons, synthesis, index, and log. It is editable because the LLM maintains it as understanding improves.
 
-| Layer | Mutability | Owner |
-|------|------------|-------|
-| `raw/` | Immutable | Human-curated evidence layer |
-| `wiki/` | Mutable | LLM-maintained synthesis layer |
-| schema file | Mutable, but controlled | Human and LLM co-evolve operating rules |
+## Why It Matters
 
-This is one of the core architectural commitments inside [[llm-wiki]].
+This separation lets the wiki evolve while preserving the original claims. It also gives future maintainers a clear way to verify derived pages against their evidence.
+
+## Related Pages
+
+- [[llm-wiki]]
+- [[schema-as-operating-contract]]
+- [[persistent-compounding-artifact]]

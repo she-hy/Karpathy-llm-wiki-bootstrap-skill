@@ -1,27 +1,24 @@
 ---
 title: RAG
 type: concept
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [rag, retrieval, baseline, comparison]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [rag, retrieval, baseline]
 ---
 
-# RAG
+**RAG** in this wiki means a retrieval-augmented generation workflow where documents are searched at query time and the LLM answers from retrieved chunks.
 
-In this wiki's first source, RAG appears as the baseline pattern for question answering over documents: upload files, retrieve relevant chunks at query time, then generate an answer [LLM Wiki](../sources/llm-wiki-pattern.md). The source does not reject RAG outright; instead, it argues that traditional RAG often fails to accumulate durable synthesis across repeated queries. `(high confidence)`
+## Role in the Source
 
-## What This Source Critiques
+The source uses RAG as the main contrast class. RAG is useful for answering against documents, but the critique is that it often rediscovers knowledge from scratch on each question. The source names products such as [[notebooklm|NotebookLM]] and ChatGPT file uploads as examples of this user experience.
 
-- Relevant fragments must often be rediscovered for each new question.
-- Subtle cross-document synthesis must be rebuilt repeatedly.
-- Contradictions and comparisons are not naturally preserved as first-class artifacts.
+## Contrast With LLM Wiki
 
-## Scope Note
-
-This page currently reflects only how the first source frames RAG. It is not yet a full survey of RAG architectures, indexing methods, or retrieval strategies. `(single-source)`
+An [[llm-wiki|LLM Wiki]] stores derived summaries, concept pages, cross-references, and synthesis. It can still use retrieval, but retrieval is a helper for navigation rather than the only memory of the system.
 
 ## Related Pages
 
-- [[llm-wiki]]
-- [[rag-vs-llm-wiki]]
+- [RAG vs LLM Wiki](../comparisons/rag-vs-llm-wiki.md)
+- [[persistent-compounding-artifact]]
+- [[local-search-layer]]

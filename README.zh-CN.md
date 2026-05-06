@@ -2,145 +2,112 @@
 
 [English](./README.md)
 
-一个可安装的 Skill，加上一个真实运行中的参考实现，用来构建由 LLM 持续维护的 Markdown Wiki。
+把文章、论文、书籍、调研笔记等资料编译成由 LLM 持续维护的 Markdown Wiki。
 
 ![Karpathy LLM Wiki Bootstrap 封面图](./cover-image/llm-wiki/cover.png)
 
-这个仓库最值得看的，不只是一个可以初始化 Wiki 的 Skill，而是**一个已经跑起来的样本**。从 [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) 出发，LLM 把原始材料逐步编译进 [llm-wiki/](./llm-wiki)，长出 [index](./llm-wiki/wiki/index.md)、[log](./llm-wiki/wiki/log.md)、概念页、对比页和综合页。它展示的不是“如何做一次总结”，而是“如何把一篇材料变成一个**可维护的知识工件**”。
+这个仓库同时包含一个可安装的 Skill 和一个真实参考 Wiki。Skill 用来初始化新的 Wiki；参考 Wiki 展示这套模式如何从 [Karpathy 的 LLM Wiki 原始想法](./karpathy-llm-wiki-original.md) 出发，逐步长出持久页面、链接、概念、对比和综合判断。
 
-如果你在学习一篇文章、论文、调研报告或一本书，这套模式的关键是把维护劳动交给 LLM：
+目标不是做一次总结，而是生成一个可以通过 ingest、query、lint 持续变好的知识工件。
 
-- 原始资料保留在 `raw/`
-- 结构化理解沉淀在 `wiki/`
-- 后续通过 **ingest**、**query**、**lint** 持续扩展和校正
+## 为什么需要它
 
-> **完整展开版 →** [不是读完就算：如何把一篇文章编译成一个能长期记住它的 LLM Wiki](./from-article-to-llm-wiki.article.zh-CN.md)  ·  [English](./from-article-to-llm-wiki.article.en.md)
+大多数 LLM 文档工作流仍然停留在 query-time RAG：检索几个片段、回答当前问题，然后中间结构就消失了。LLM Wiki 把更多工作沉淀到一个可维护的 Markdown 层里。
+
+| 层级 | 用途 |
+| --- | --- |
+| `raw/` | 不可变的原始资料和证据 |
+| `wiki/` | LLM 持续维护的摘要、概念、实体、对比和综合 |
+| `SCHEMA.md` | 所有 agent 共同遵循的操作契约 |
+| 指针文件 | `AGENTS.md`、`CLAUDE.md`、`.github/copilot-instructions.md` 等轻量运行时入口 |
+
+结果是一个会复利的 Wiki：新资料会更新旧页面，有价值的回答可以归档回来，lint 会持续检查结构健康。
 
 ## 仓库包含什么
 
-这个仓库由两部分组成，而且两者是配套设计的：
+- [skill/](./skill)：可安装的 Skill 包，包含模板和工作流。
+- [llm-wiki/](./llm-wiki)：使用该 Skill 生成并维护过的真实参考 Wiki。
+- [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)：原始想法笔记的仓库内副本。
+- [from-article-to-llm-wiki.article.zh-CN.md](./from-article-to-llm-wiki.article.zh-CN.md)：完整中文 walkthrough。
 
-- [skill/](./skill) 是可安装、可分发的 Skill 包，用来初始化你自己的 Wiki。
-- [llm-wiki/](./llm-wiki) 是基于该 Skill 创建出来，并持续经过 ingest、query、lint 维护的真实示例 Wiki。
+## 快速开始
 
-这样的拆分是有意为之的：`skill/` 是可复用的产品本体，`llm-wiki/` 则负责展示这套模式真正跑起来之后是什么样子。
-
-## Quick Install
-
-推荐安装方式：
+安装 Skill：
 
 ```bash
 npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
 ```
 
-如果你希望用非交互方式做用户级安装：
+然后对你的 agent 说：
 
-```bash
-npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
+```text
+bootstrap a wiki
 ```
 
-说明：
+初始化时可以这样选择：
 
-- 这里要用 `npx skills ...`（复数），不要用 `npx skill ...`。`skill` 是另一个 CLI，不能按这个仓库的 specifier 正确处理安装。
-- 如果你已经安装过，只是想更新到最新版本，使用 `npx skills update` 或 `npx skills update llm-wiki-bootstrap`。
+| 问题 | 示例回答 |
+| --- | --- |
+| Domain | `Research topic` |
+| Wiki name | `llm-wiki-demo` |
+| Runtime | `OpenAI Codex`、`Claude Code` 或 `Copilot (VS Code)` |
+| Editor | `Obsidian` 或 `VS Code` |
+| Source types | `Web articles` |
+| Output location | `Current directory` |
 
-## 第一次运行示例
+添加原始资料：
 
-下面是一条最小可跑通的首次使用路径，起点就是 [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)。
+```bash
+cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
+```
 
-规则的单一真源永远是 `SCHEMA.md`。`AGENTS.md`（Codex）和 `CLAUDE.md`（Claude Code）会被生成为轻量指针，只做一件事：把 agent 指向 `SCHEMA.md`。下面示例默认使用 OpenAI Codex，所以会存在 `AGENTS.md` 指针；如果你选择 Claude Code，会改为生成 `CLAUDE.md` 指针。多个运行时可以共存——所有指针都读取同一份 `SCHEMA.md`。
+然后对 agent 说：
 
-1. 在你的 agent 里触发这个 Skill：
+```text
+Read llm-wiki-demo/SCHEMA.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md
+```
 
-   > `bootstrap a wiki`
+第一次 ingest 后，重点查看：
 
-2. 当 Skill 询问初始化问题时，可以这样选择：
+- `llm-wiki-demo/wiki/index.md`
+- `llm-wiki-demo/wiki/concept-table.md`
+- `llm-wiki-demo/wiki/overview.md`
+- `llm-wiki-demo/wiki/log.md`
 
-   - Domain：`Research topic`
-   - Wiki name：`llm-wiki-demo`
-   - Agent：`OpenAI Codex`
-   - Editor：`Obsidian`
-   - Source types：`Web articles`
-   - Output location：`Current directory`
+如果你想从一开始就构建中文 Wiki，直接告诉 agent：
 
-3. 等 Wiki 脚手架生成后，把这份原始理念文档复制到新 Wiki 的 `raw/` 目录：
-
-   ```bash
-   cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
-   ```
-
-4. 然后对 agent 说：
-
-   > `Read llm-wiki-demo/SCHEMA.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
-
-   （会自动发现 `AGENTS.md` / `CLAUDE.md` 的运行时也会被指针重定向到 `SCHEMA.md`。）
-
-5. 第一次 ingest 完成后，重点查看这几个文件：
-
-   - `llm-wiki-demo/wiki/index.md`
-   - `llm-wiki-demo/wiki/log.md`
-   - `llm-wiki-demo/wiki/overview.md`
-
-跑完第一轮之后，你通常会看到：
-
-- `wiki/sources/` 下生成了一页 source summary
-- 如果 agent 识别出了关键概念或实体，还会创建新的概念页或实体页
-- `index`、`log` 和 `overview` 都会被同步更新
-
-如果你想先看一份已经跑完的结果，再决定自己动手，可以直接打开 [llm-wiki/](./llm-wiki)。
-
-一个很实用的小 tips：
-
-如果你想从一开始就构建中文 Wiki，在调用时直接对 agent 说：
-
-> `使用中文编译 karpathy-llm-wiki-original.md`
-
-## 为什么要用这种模式
-
-现在大多数 LLM 文档工作流，本质上还是 RAG：上传文件、提问时临时检索若干片段、再从头拼出答案。它能解决问题，但不会沉淀结构。
-
-这个项目封装的是另一种做法：
-
-- 原始资料始终保持**不可变**
-- Agent 持续把知识“**编译**”进 Wiki
-- Wiki 会成为一个**不断增长的长期知识制品**
-- 有价值的回答可以继续归档回 Wiki，而不是消失在聊天记录里
-
-**结果就是：**知识会持续累积，而不是每次提问都从零开始。
-
-## 系统模型
-
-完整来看，这个系统有四层：
-
-| 层级 | 位置 | 角色 |
-| --- | --- | --- |
-| Skill 包 | `skill/` | bootstrap 逻辑、模板和工作流规则 |
-| 原始资料层 | `raw/` | 不可变的证据层 |
-| Schema 层 | `SCHEMA.md` | 单一真源——所有 agent 共享的操作契约 |
-| 指针层 | `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` | 可选的轻量指针，一个运行时一个，统一指向 `SCHEMA.md` |
-| Wiki 页面层 | `wiki/` | 持续维护的知识层 |
-
-Skill 负责在一个新 Wiki 里生成后三层。
-
-`llm-wiki/` 则展示了这套机制已经实际运行过之后的结果。
+```text
+使用中文编译 karpathy-llm-wiki-original.md
+```
 
 ## 参考 Wiki
 
-[llm-wiki/](./llm-wiki) 不是占位内容，而是一个真实的参考实现。它确实是从这个 Skill 生成出来的，而且已经作为一个活的 Wiki 被维护过。
+[llm-wiki/](./llm-wiki) 是最快理解这套系统的入口。它不是占位内容，而是一个由真实资料生成并维护过的示例 Wiki。
 
-当前结构如下：
+建议先看：
+
+| 文件 | 为什么看它 |
+| --- | --- |
+| [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) | agent 操作规则的权威契约 |
+| [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md) | 所有 Wiki 页面目录 |
+| [llm-wiki/wiki/concept-table.md](./llm-wiki/wiki/concept-table.md) | 持续维护的概念地图：定义、关系、来源、状态、维护备注 |
+| [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md) | 整个 Wiki 的顶层综合 |
+| [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md) | 按时间记录的操作历史 |
+
+当前结构：
 
 ```text
 llm-wiki/
-├── SCHEMA.md            # 单一真源：所有操作规则
-├── AGENTS.md            # 轻量指针：OpenAI Codex → SCHEMA.md
+├── SCHEMA.md
+├── AGENTS.md
 ├── raw/
 │   ├── Karpathy x.md
 │   └── llm-wiki-pattern.md
 └── wiki/
     ├── index.md
-    ├── log.md
+    ├── concept-table.md
     ├── overview.md
+    ├── log.md
     ├── concepts/
     ├── entities/
     ├── comparisons/
@@ -148,112 +115,80 @@ llm-wiki/
     └── synthesis/
 ```
 
-建议先看这几个入口：
+## 核心工作流
 
-- [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md)，看权威的 agent 操作指令
-- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md)，看运行时指针文件长什么样
-- [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md)，看 Agent 如何导航整个知识库
-- [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md)，看按时间顺序记录的操作历史
-- [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md)，看当前阶段的顶层综合判断
+| 操作 | 触发方式 | 结果 |
+| --- | --- | --- |
+| Ingest | `ingest raw/{file}` | 读取资料，创建或更新 Wiki 页面，并更新概念表、索引、总览和日志 |
+| Query | 直接提领域问题 | 读取索引和相关页面，可选使用 BM25，然后用 Wiki 页面引用回答 |
+| Lint | `lint` 或 `health check` | 检查矛盾、过期结论、孤儿页、概念表漂移和缺失链接 |
 
-如果你想最快理解这套模式，直接看 `llm-wiki/` 是最直观的方式。
+每个 Wiki 的关键文件：
 
-## 来源与语料脉络
+| 文件 | 作用 |
+| --- | --- |
+| `SCHEMA.md` | agent 行为的单一真源 |
+| `wiki/index.md` | 页面目录和主要导航面 |
+| `wiki/concept-table.md` | 压缩概念地图：定义、关系、证据状态、维护备注 |
+| `wiki/overview.md` | 顶层综合判断 |
+| `wiki/log.md` | 追加式操作历史 |
 
-这套思路来自 Karpathy 最初提出的 LLM Wiki 原始笔记：
+## 可选 BM25 搜索
+
+当 Wiki 变大后，Skill 可以初始化一个本地 SQLite FTS5/BM25 搜索层。BM25 只是候选召回工具，不是知识真源：agent 必须打开返回的 `wiki/` 页面后再回答。
+
+在生成的 Wiki 内常用命令：
+
+```bash
+python3 scripts/wiki_fts.py doctor
+python3 scripts/wiki_fts.py build
+python3 scripts/wiki_fts.py search "query text" --limit 10
+python3 scripts/wiki_fts.py stats
+```
+
+完整流程和数据模型规则见 [skill/references/workflows/bm25.md](./skill/references/workflows/bm25.md)。
+
+## 安装说明
+
+使用复数形式的 CLI：
+
+```bash
+npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
+```
+
+非交互式用户级安装：
+
+```bash
+npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
+```
+
+更新已有安装：
+
+```bash
+npx skills update llm-wiki-bootstrap
+```
+
+不要使用 `npx skill ...`；那是另一个 CLI。
+
+## 文档入口
+
+| 主题 | 链接 |
+| --- | --- |
+| 完整中文 walkthrough | [不是读完就算](./from-article-to-llm-wiki.article.zh-CN.md) |
+| 英文 walkthrough | [Reading Is Not Enough](./from-article-to-llm-wiki.article.en.md) |
+| Skill 入口 | [skill/SKILL.md](./skill/SKILL.md) |
+| Bootstrap 工作流 | [skill/references/workflows/bootstrap.md](./skill/references/workflows/bootstrap.md) |
+| Ingest 工作流 | [skill/references/workflows/ingest.md](./skill/references/workflows/ingest.md) |
+| Query 工作流 | [skill/references/workflows/query.md](./skill/references/workflows/query.md) |
+| Lint 工作流 | [skill/references/workflows/lint.md](./skill/references/workflows/lint.md) |
+| BM25 工作流 | [skill/references/workflows/bm25.md](./skill/references/workflows/bm25.md) |
+| 偏好配置 schema | [skill/references/config/extend-schema.md](./skill/references/config/extend-schema.md) |
+
+## 来源
+
+这个仓库基于 Karpathy 的 LLM Wiki 原始笔记：
 
 - 原始 gist：<https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
 - 仓库内副本：[karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)
 
-当前示例 Wiki 就是建立在这份原始想法之上的。语料脉络如下：
-
-| 语料 | 角色 |
-| --- | --- |
-| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | 原始理念的仓库内参考副本 |
-| [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md) | 基于理念整理的示例原始语料 |
-| [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md) | 展示新资料如何被吸收进演化中的 Wiki |
-
-对外介绍时，最清晰的说法是：
-
-1. **Skill** 负责把方法封装成可安装的能力
-2. **示例 Wiki** 负责展示这套方法已经真实跑起来的效果
-3. **语料** 以 Karpathy 的原始想法为起点，再继续向外扩展
-
-## 推荐安装布局
-
-建议把 `.agent/skills/` 作为统一安装位置。
-
-对于 Claude、Codex 或其他需要单独发现目录的运行时，不要复制多份内容，而是把它们链接回同一份已安装 Skill。
-
-```text
-.agent/
-└── skills/
-    └── llm-wiki-bootstrap/
-        ├── SKILL.md
-        └── references/
-```
-
-符号链接示例：
-
-```bash
-ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.claude/skills/llm-wiki-bootstrap
-ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wiki-bootstrap
-```
-
-> **原则很简单：**只保留一份真实安装副本，其余运行时都回链到它。
-
----
-
-## Skill 会生成什么
-
-当你用这个 Skill 初始化一个新 Wiki 时，生成结构如下：
-
-```text
-{wiki-name}/
-├── raw/
-├── wiki/
-│   ├── index.md
-│   ├── log.md
-│   └── overview.md
-├── SCHEMA.md            # 一定会生成——单一真源
-├── {pointer-files}      # 可选，每个所选运行时一份
-└── .gitignore
-```
-
-`SCHEMA.md` 一定会生成。对于你在初始化时选择的每个运行时，Skill 会额外生成一个轻量指针文件，直接重定向到 `SCHEMA.md`：
-
-| Agent | 指针文件 | 指向 |
-| --- | --- | --- |
-| Claude Code | `CLAUDE.md` | `./SCHEMA.md` |
-| OpenAI Codex | `AGENTS.md` | `./SCHEMA.md` |
-| Copilot (VS Code) | `.github/copilot-instructions.md` | `../SCHEMA.md` |
-| 其他 / 通用 | _（不生成指针）_ | agent 直接读 `SCHEMA.md` |
-
-所有规则都写在 `SCHEMA.md` 里。指针永远不重复规则内容——所以你随时可以新增一个运行时，只要再丢一个指针文件进去即可。
-
----
-
-## 三类核心操作
-
-| 操作 | 触发方式 | 结果 |
-| --- | --- | --- |
-| Ingest | `"ingest raw/{file}"` | 把资料转成摘要、实体、概念、链接、索引更新和日志记录 |
-| Query | 直接提领域问题 | 先读索引，再读相关页面，最后输出带引用的综合回答 |
-| Lint | `"lint"` 或 `"health check"` | 检查矛盾、过期结论、孤儿页和缺失链接 |
-
-## 仓库结构
-
-| 路径 | 用途 |
-| --- | --- |
-| [skill/SKILL.md](./skill/SKILL.md) | 可安装的 Skill 定义 |
-| [skill/references/templates](./skill/references/templates) | bootstrap 过程中使用的模板 |
-| [skill/references/workflows](./skill/references/workflows) | ingest、query、lint 的详细工作流参考 |
-| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | 原始理念笔记的仓库内副本 |
-| [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) | 示例 Wiki 的单一真源操作契约 |
-| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | 示例 Wiki 的 Codex 轻量指针，重定向到 SCHEMA.md |
-| [llm-wiki/raw](./llm-wiki/raw) | 示例原始资料层 |
-| [llm-wiki/wiki](./llm-wiki/wiki) | 示例编译后的 Wiki 输出层 |
-
-## 一句话定位
-
-`Karpathy LLM Wiki Bootstrap` 是一个可安装的 Skill，用来创建由 LLM 持续维护的 Markdown Wiki，同时附带一个真实的 `llm-wiki/` 参考实现，展示这套模式如何以 Karpathy 的原始 LLM Wiki 思路为起点真正运行起来。
+这个项目把这套想法封装成一个可安装 Skill，并用一个持续维护的参考 Wiki 展示它如何实际运行。

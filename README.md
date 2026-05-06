@@ -2,145 +2,112 @@
 
 [简体中文](./README.zh-CN.md)
 
-An installable skill and a working reference implementation for building persistent, LLM-maintained Markdown wikis.
+Build persistent, LLM-maintained Markdown wikis from articles, papers, books, research notes, and other source material.
 
 ![Cover image for Karpathy LLM Wiki Bootstrap](./cover-image/llm-wiki/cover.png)
 
-The most important thing here is not just the bootstrap skill, but **the worked example**. Starting from [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md), the LLM incrementally compiles source material into [llm-wiki/](./llm-wiki)—growing an [index](./llm-wiki/wiki/index.md), a [log](./llm-wiki/wiki/log.md), concept pages, comparison pages, and synthesis pages. The point is not a one-off summary, but a **maintainable knowledge artifact**.
+This repository includes both an installable skill and a working reference wiki. The skill bootstraps a new wiki; the reference wiki shows the pattern in action, starting from [Karpathy's LLM Wiki idea](./karpathy-llm-wiki-original.md) and compiling it into durable pages, links, concepts, comparisons, and synthesis.
 
-That same pattern works for articles, papers, research reports, and books:
+The goal is not a one-off summary. It is a knowledge artifact that can keep improving through repeated ingest, query, and lint cycles.
 
-- keep raw evidence in `raw/`
-- keep evolving understanding in `wiki/`
-- use **ingest**, **query**, and **lint** to keep the structure alive over time
+## Why This Exists
 
-> **Full walkthrough →** [Reading Is Not Enough: How to Compile an Article into an LLM Wiki](./from-article-to-llm-wiki.article.en.md)  ·  [中文版](./from-article-to-llm-wiki.article.zh-CN.md)
+Most LLM document workflows behave like query-time RAG: retrieve a few chunks, answer the current question, then lose the intermediate structure. An LLM Wiki moves more work into a maintained Markdown layer.
 
-## What This Repo Contains
+| Layer | Purpose |
+| --- | --- |
+| `raw/` | Immutable source material and evidence |
+| `wiki/` | LLM-maintained summaries, concepts, entities, comparisons, and synthesis |
+| `SCHEMA.md` | The operating contract every agent follows |
+| Pointer files | Thin runtime redirects such as `AGENTS.md`, `CLAUDE.md`, or `.github/copilot-instructions.md` |
 
-This repository has two closely related parts:
+The result is a wiki that compounds: new sources update existing pages, useful answers can be filed back, and linting keeps the structure healthy.
 
-- [skill/](./skill) is the installable skill package. Use it to bootstrap your own wiki.
-- [llm-wiki/](./llm-wiki) is a real example wiki created with that skill and then maintained through the ingest, query, and lint loop.
+## What Is Included
 
-That split is intentional: `skill/` is the reusable product, while `llm-wiki/` shows the pattern in practice.
+- [skill/](./skill): the installable skill package with templates and workflows.
+- [llm-wiki/](./llm-wiki): a real reference wiki generated and maintained with the skill.
+- [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md): repository copy of the original idea note.
+- [from-article-to-llm-wiki.article.en.md](./from-article-to-llm-wiki.article.en.md): full walkthrough article.
 
-## Quick Install
+## Quick Start
 
-Recommended:
+Install the skill:
 
 ```bash
 npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
 ```
 
-Non-interactive user-level install:
+Then ask your agent:
 
-```bash
-npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
+```text
+bootstrap a wiki
 ```
 
-Note:
+When prompted, choose values such as:
 
-- Use `npx skills ...` (plural), not `npx skill ...`. `skill` is a different CLI and will not handle this repository specifier correctly.
-- If the skill is already installed and you just want the latest version, run `npx skills update` or `npx skills update llm-wiki-bootstrap`.
+| Question | Example answer |
+| --- | --- |
+| Domain | `Research topic` |
+| Wiki name | `llm-wiki-demo` |
+| Runtime | `OpenAI Codex`, `Claude Code`, or `Copilot (VS Code)` |
+| Editor | `Obsidian` or `VS Code` |
+| Source types | `Web articles` |
+| Output location | `Current directory` |
 
-## First Run Example
+Add a source:
 
-Here is the simplest first-time workflow, using [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) as the seed source.
+```bash
+cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
+```
 
-The single source of truth is always `SCHEMA.md`. `AGENTS.md` (Codex) and `CLAUDE.md` (Claude Code) are generated as thin pointers that redirect to it. The example below uses OpenAI Codex, so an `AGENTS.md` pointer is present; if you select Claude Code, a `CLAUDE.md` pointer is generated instead. Multiple runtimes can coexist — all pointers read from the same `SCHEMA.md`.
+Then tell the agent:
 
-1. In your agent, trigger the skill:
+```text
+Read llm-wiki-demo/SCHEMA.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md
+```
 
-   > `bootstrap a wiki`
+After the first ingest, inspect:
 
-2. When the skill asks its setup questions, choose values like these:
+- `llm-wiki-demo/wiki/index.md`
+- `llm-wiki-demo/wiki/concept-table.md`
+- `llm-wiki-demo/wiki/overview.md`
+- `llm-wiki-demo/wiki/log.md`
 
-   - Domain: `Research topic`
-   - Wiki name: `llm-wiki-demo`
-   - Agent: `OpenAI Codex`
-   - Editor: `Obsidian`
-   - Source types: `Web articles`
-   - Output location: `Current directory`
+For a Chinese-language wiki, tell the agent directly:
 
-3. After the wiki scaffold is created, copy the seed source into the new raw folder:
+```text
+使用中文编译 karpathy-llm-wiki-original.md
+```
 
-   ```bash
-   cp karpathy-llm-wiki-original.md llm-wiki-demo/raw/
-   ```
+## Reference Wiki
 
-4. Then tell the agent:
+[llm-wiki/](./llm-wiki) is the best place to understand the system quickly. It is not placeholder content; it is a maintained example wiki built from real source material.
 
-   > `Read llm-wiki-demo/SCHEMA.md, then ingest llm-wiki-demo/raw/karpathy-llm-wiki-original.md`
+Useful entry points:
 
-   (Runtimes that auto-discover `AGENTS.md` / `CLAUDE.md` will be redirected to `SCHEMA.md` automatically.)
+| File | Why open it |
+| --- | --- |
+| [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) | Authoritative operating contract for agents |
+| [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md) | Catalog of all wiki pages |
+| [llm-wiki/wiki/concept-table.md](./llm-wiki/wiki/concept-table.md) | Maintained concept map with definitions, relationships, sources, status, and maintenance notes |
+| [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md) | Top-level synthesis of the wiki |
+| [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md) | Chronological operation history |
 
-5. After the first ingest, inspect these files:
-
-   - `llm-wiki-demo/wiki/index.md`
-   - `llm-wiki-demo/wiki/log.md`
-   - `llm-wiki-demo/wiki/overview.md`
-
-What you should expect after that first run:
-
-- a source summary page under `wiki/sources/`
-- new concept or entity pages if the agent identifies them
-- an updated index, log, and overview
-
-If you want to see what a completed run looks like before trying it yourself, open [llm-wiki/](./llm-wiki).
-
-Tip for a Chinese-language wiki:
-
-If you want the wiki to be compiled in Chinese from the start, you can simply tell the agent:
-
-> `使用中文编译 karpathy-llm-wiki-original.md`
-
-## Why This Pattern Exists
-
-Most LLM document workflows stop at RAG: upload files, retrieve a few chunks at question time, and synthesize an answer from scratch. That works—but it does not build lasting structure.
-
-This project packages a different model:
-
-- Raw sources stay **immutable**
-- The agent incrementally **compiles** knowledge into a wiki
-- The wiki becomes a **persistent artifact** that grows over time
-- Useful answers get filed back into the wiki instead of disappearing into chat history
-
-**The result:** a knowledge base that compounds instead of resetting on every query.
-
-## System Model
-
-The full system has four layers:
-
-| Layer | Location | Role |
-| --- | --- | --- |
-| Skill package | `skill/` | Bootstrap logic, templates, and workflow rules |
-| Raw sources | `raw/` | Immutable evidence layer |
-| Schema | `SCHEMA.md` | Single source of truth — the operating contract for every agent |
-| Pointers | `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` | Optional thin redirects to `SCHEMA.md`, one per runtime you want to support |
-| Wiki pages | `wiki/` | Maintained knowledge layer |
-
-The skill creates the bottom three layers inside a new wiki.
-
-The example in `llm-wiki/` shows what that looks like after the system has already been used.
-
-## The Reference Wiki
-
-[llm-wiki/](./llm-wiki) is not placeholder content. It is a working example generated from the skill and then maintained as a living wiki.
-
-Current structure:
+Current shape:
 
 ```text
 llm-wiki/
-├── SCHEMA.md            # Single source of truth for operating rules
-├── AGENTS.md            # Thin pointer for OpenAI Codex → SCHEMA.md
+├── SCHEMA.md
+├── AGENTS.md
 ├── raw/
 │   ├── Karpathy x.md
 │   └── llm-wiki-pattern.md
 └── wiki/
     ├── index.md
-    ├── log.md
+    ├── concept-table.md
     ├── overview.md
+    ├── log.md
     ├── concepts/
     ├── entities/
     ├── comparisons/
@@ -148,112 +115,80 @@ llm-wiki/
     └── synthesis/
 ```
 
-Useful entry points:
-
-- [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) for the authoritative agent instructions
-- [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) to see what a thin runtime pointer looks like
-- [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md) for the catalog the agent navigates through
-- [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md) for the chronological operation history
-- [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md) for the current top-level synthesis
-
-If you want to understand the pattern quickly, `llm-wiki/` is the best place to inspect it in action.
-
-## Origin And Source Lineage
-
-The underlying idea comes from Karpathy's original LLM Wiki note:
-
-- Original gist: <https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
-- Repository copy: [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)
-
-The example wiki is grounded in that note. Source lineage in this repo:
-
-| Source | Role |
-| --- | --- |
-| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | Reference copy of the original idea |
-| [llm-wiki/raw/llm-wiki-pattern.md](./llm-wiki/raw/llm-wiki-pattern.md) | Example-local raw source derived from it |
-| [llm-wiki/raw/Karpathy x.md](./llm-wiki/raw/Karpathy%20x.md) | Shows how additional sources get absorbed |
-
-Clean framing for public-facing explanation:
-
-1. The **skill** packages the method
-2. The **example wiki** demonstrates the method in use
-3. The **corpus** starts from Karpathy's idea, then grows through new sources
-
-## Recommended Installation Layout
-
-Use `.agent/skills/` as the canonical installation location.
-
-If Claude, Codex, or another runtime expects a separate discovery directory, link that runtime back to the same installed copy instead of duplicating files.
-
-```text
-.agent/
-└── skills/
-    └── llm-wiki-bootstrap/
-        ├── SKILL.md
-        └── references/
-```
-
-Example symlinks:
-
-```bash
-ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.claude/skills/llm-wiki-bootstrap
-ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wiki-bootstrap
-```
-
-> **Principle:** keep one real installed copy and point every runtime back to it.
-
----
-
-## What The Skill Generates
-
-When you bootstrap a new wiki, the generated structure looks like this:
-
-```text
-{wiki-name}/
-├── raw/
-├── wiki/
-│   ├── index.md
-│   ├── log.md
-│   └── overview.md
-├── SCHEMA.md            # Always generated — single source of truth
-├── {pointer-files}      # Optional, one per selected runtime
-└── .gitignore
-```
-
-`SCHEMA.md` is always generated. For each runtime you select during setup, the skill adds a thin pointer file that redirects to `SCHEMA.md`:
-
-| Agent | Pointer File | Points to |
-| --- | --- | --- |
-| Claude Code | `CLAUDE.md` | `./SCHEMA.md` |
-| OpenAI Codex | `AGENTS.md` | `./SCHEMA.md` |
-| Copilot (VS Code) | `.github/copilot-instructions.md` | `../SCHEMA.md` |
-| Other / generic | _(no pointer)_ | agent reads `SCHEMA.md` directly |
-
-All rules live in `SCHEMA.md`. Pointers never duplicate rule content — so you can safely add a second runtime at any time by dropping in another pointer file.
-
----
-
-## Core Operations
+## Core Workflow
 
 | Operation | Trigger | Result |
 | --- | --- | --- |
-| Ingest | `"ingest raw/{file}"` | Turns a source into summaries, entities, concepts, links, index updates, and a log entry |
-| Query | Ask a domain question | Reads the index, opens relevant pages, and answers with citations |
-| Lint | `"lint"` or `"health check"` | Audits contradictions, stale claims, orphan pages, and missing links |
+| Ingest | `ingest raw/{file}` | Reads a source, creates or updates wiki pages, updates the concept table, index, overview, and log |
+| Query | Ask a domain question | Reads the index and relevant pages, optionally uses BM25, then answers with wiki citations |
+| Lint | `lint` or `health check` | Finds contradictions, stale claims, orphan pages, concept-table drift, and missing links |
 
-## Repository Layout
+The key files created inside each wiki are:
 
-| Path | Purpose |
+| File | Role |
 | --- | --- |
-| [skill/SKILL.md](./skill/SKILL.md) | Installable skill definition |
-| [skill/references/templates](./skill/references/templates) | Templates used during bootstrap |
-| [skill/references/workflows](./skill/references/workflows) | Detailed ingest, query, and lint workflow references |
-| [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md) | Repository copy of the original idea note |
-| [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) | Single source of truth for agent instructions |
-| [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) | Thin Codex pointer that redirects to SCHEMA.md |
-| [llm-wiki/raw](./llm-wiki/raw) | Example source corpus |
-| [llm-wiki/wiki](./llm-wiki/wiki) | Example compiled wiki output |
+| `SCHEMA.md` | Single source of truth for agent behavior |
+| `wiki/index.md` | Page catalog and primary navigation surface |
+| `wiki/concept-table.md` | Compressed concept map for definitions, relationships, evidence status, and maintenance notes |
+| `wiki/overview.md` | High-level synthesis |
+| `wiki/log.md` | Append-only operation history |
 
-## One-Line Positioning
+## Optional BM25 Search
 
-`Karpathy LLM Wiki Bootstrap` is an installable skill for creating persistent, LLM-maintained Markdown wikis, bundled with a real `llm-wiki/` reference implementation grounded in Karpathy's original LLM Wiki idea.
+For larger wikis, the skill can initialize a local SQLite FTS5/BM25 search layer. BM25 is a candidate finder, not a source of truth: the agent must open returned `wiki/` pages before answering.
+
+Common commands inside a generated wiki:
+
+```bash
+python3 scripts/wiki_fts.py doctor
+python3 scripts/wiki_fts.py build
+python3 scripts/wiki_fts.py search "query text" --limit 10
+python3 scripts/wiki_fts.py stats
+```
+
+See [skill/references/workflows/bm25.md](./skill/references/workflows/bm25.md) for the full workflow and data model rules.
+
+## Install Notes
+
+Use the plural CLI:
+
+```bash
+npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap
+```
+
+For non-interactive user-level install:
+
+```bash
+npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g -y
+```
+
+To update an existing install:
+
+```bash
+npx skills update llm-wiki-bootstrap
+```
+
+Do not use `npx skill ...`; that is a different CLI.
+
+## Documentation
+
+| Topic | Link |
+| --- | --- |
+| Full walkthrough | [Reading Is Not Enough](./from-article-to-llm-wiki.article.en.md) |
+| Chinese walkthrough | [不是读完就算](./from-article-to-llm-wiki.article.zh-CN.md) |
+| Skill entry point | [skill/SKILL.md](./skill/SKILL.md) |
+| Bootstrap workflow | [skill/references/workflows/bootstrap.md](./skill/references/workflows/bootstrap.md) |
+| Ingest workflow | [skill/references/workflows/ingest.md](./skill/references/workflows/ingest.md) |
+| Query workflow | [skill/references/workflows/query.md](./skill/references/workflows/query.md) |
+| Lint workflow | [skill/references/workflows/lint.md](./skill/references/workflows/lint.md) |
+| BM25 workflow | [skill/references/workflows/bm25.md](./skill/references/workflows/bm25.md) |
+| Preferences schema | [skill/references/config/extend-schema.md](./skill/references/config/extend-schema.md) |
+
+## Origin
+
+The repository is grounded in Karpathy's original LLM Wiki note:
+
+- Original gist: <https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f>
+- Local copy: [karpathy-llm-wiki-original.md](./karpathy-llm-wiki-original.md)
+
+This project packages that idea into an installable skill and demonstrates it with a living reference wiki.

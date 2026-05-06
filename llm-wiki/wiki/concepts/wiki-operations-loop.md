@@ -1,28 +1,28 @@
 ---
 title: Wiki Operations Loop
 type: concept
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [workflow, ingest, query, lint, operations]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [operations, ingest, query, lint]
 ---
 
-# Wiki Operations Loop
+The **wiki operations loop** is the recurring set of actions that keeps an LLM Wiki useful: ingest, query, and lint.
 
-The source defines the wiki as an operational loop rather than a static repository: ingest new material, answer questions against the current wiki, and periodically lint the result for contradictions and gaps [LLM Wiki](../sources/llm-wiki-pattern.md). `(high confidence)`
+## Ingest
 
-## Three Core Operations
+The LLM reads a source, writes a source summary, updates relevant entity and concept pages, revises navigation files, and appends to the log.
 
-1. **Ingest**: read a new source, summarize it, update related pages, refresh the index, and append to the log
-2. **Query**: synthesize answers from existing wiki pages and optionally file valuable outputs back into the wiki
-3. **Lint**: inspect the wiki for contradictions, stale claims, orphan pages, missing pages, and weak coverage
+## Query
 
-## Why The Loop Matters
+The LLM searches or navigates the wiki, reads relevant pages, answers with citations, and can file valuable answers back into the wiki as durable artifacts.
 
-The loop turns the wiki into a living system. New sources add structure, queries create reusable knowledge, and linting counteracts drift and fragmentation. This gives the pattern operational continuity rather than leaving it as a one-time note-taking setup.
+## Lint
+
+The LLM periodically checks for contradictions, stale claims, orphan pages, missing cross-references, and knowledge gaps.
 
 ## Related Pages
 
-- [[llm-wiki]]
+- [[filed-query-artifacts]]
+- [[human-curation-loop]]
 - [[index-and-log-navigation]]
-- [[human-ai-maintenance-split]]
