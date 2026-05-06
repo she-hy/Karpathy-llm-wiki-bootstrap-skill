@@ -1,22 +1,19 @@
 ---
 title: OpenAI Codex
 type: entity
-created: 2026-04-12
-updated: 2026-04-12
-sources: [Karpathy x.md]
-tags: [product, coding, agents, openai]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [agent, coding, runtime]
 ---
 
-# OpenAI Codex
+**OpenAI Codex** is mentioned as one example of an LLM agent runtime that could receive the LLM Wiki idea file and help instantiate the wiki structure.
 
-In the source, OpenAI Codex is presented as a highest-tier paid agentic model whose capabilities are especially visible in technical tasks when given access to a computer terminal [Karpathy x: AI Capability Perception Gap](../sources/karpathy-x.md). The source claims such systems can restructure codebases or find vulnerabilities in ways that feel dramatically beyond consumer-facing experiences. `(high confidence)`
+## Role in the Source
 
-## Role In The Source
+The source uses Codex as an example runtime, not as a subject of analysis. The implied requirement is that the agent needs explicit instructions and conventions before it can maintain a wiki reliably.
 
-- Example of frontier technical capability
-- Evidence that some AI domains have improved much faster than public discussion assumes
-- A central product in [[consumer-ai-vs-frontier-agentic-models]]
+## Related Pages
 
-## Scope Note
-
-This page currently captures only how the product is framed by this source. More sources are needed before expanding it into a fuller product profile. `(single-source)`
+- [[schema-as-operating-contract]]
+- [[llm-owned-wiki-maintenance]]

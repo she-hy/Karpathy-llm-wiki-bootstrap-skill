@@ -1,30 +1,28 @@
 ---
 title: RAG vs LLM Wiki
 type: comparison
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [rag, llm-wiki, comparison, retrieval]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [rag, llm-wiki, comparison]
 ---
 
-# RAG vs LLM Wiki
-
-This comparison captures the first source's central contrast: both patterns help an LLM work with documents, but they place synthesis at different points in the workflow [LLM Wiki](../sources/llm-wiki-pattern.md). `(high confidence)`
-
 | Dimension | RAG | LLM Wiki |
-|------|------|------|
-| Primary moment of synthesis | Query time | Ingest time, then continuously maintained |
-| Durable artifact | Usually limited | Central: the wiki itself compounds |
-| Cross-reference maintenance | Often implicit or absent | Explicit, maintained across pages |
-| Contradiction handling | Rediscovered per query | Can be flagged once and preserved |
-| Best fit | Fast retrieval over document collections | Long-horizon cumulative understanding |
+| --- | --- | --- |
+| Main action | Retrieve raw chunks at query time | Compile source knowledge into persistent pages |
+| Memory shape | Mostly implicit in indexed source documents | Explicit in maintained Markdown pages |
+| Synthesis | Rebuilt repeatedly for each question | Accumulates across ingests and queries |
+| Contradictions | Must be rediscovered or re-reasoned | Can be flagged and tracked in pages |
+| Human role | Upload documents and ask questions | Curate sources, guide emphasis, review meaning |
+| LLM role | Retrieve and answer | Ingest, summarize, cross-reference, lint, and answer |
+| Best fit | Direct Q&A over a collection | Long-running knowledge accumulation |
 
 ## Interpretation
 
-The source is not arguing that RAG is useless. It argues that standard RAG alone is insufficient when the goal is cumulative understanding across many interactions. The LLM Wiki pattern keeps more of the intermediate structure that would otherwise disappear after each answer.
+The source does not reject [[rag|RAG]]. It argues that RAG alone does not accumulate durable synthesis. An [[llm-wiki|LLM Wiki]] can still use retrieval tools, including local search, but those tools serve navigation rather than replacing the maintained wiki layer.
 
 ## Related Pages
 
-- [[rag]]
-- [[llm-wiki]]
-- [[why-llm-wikis-work]]
+- [[persistent-compounding-artifact]]
+- [[source-of-truth-separation]]
+- [[local-search-layer]]

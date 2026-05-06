@@ -1,27 +1,28 @@
 ---
 title: Index and Log Navigation
 type: concept
-created: 2026-04-12
-updated: 2026-04-12
-sources: [llm-wiki-pattern.md]
-tags: [navigation, indexing, logs, retrieval]
+created: 2026-05-06
+updated: 2026-05-06
+sources: [karpathy-llm-wiki-original.md]
+tags: [navigation, index, log]
 ---
 
-# Index and Log Navigation
+`index.md` and `log.md` are the source's minimum navigation structure for an LLM Wiki.
 
-The source distinguishes two lightweight navigation primitives for the wiki: `index.md` for content-oriented discovery and `log.md` for chronological memory [LLM Wiki](../sources/llm-wiki-pattern.md). Instead of relying immediately on embedding infrastructure, the pattern starts with explicit markdown navigation and only adds stronger search tools later if scale demands it. `(high confidence)`
+## `index.md`
 
-## Roles
+`index.md` is content-oriented. It lists wiki pages by category with links and metadata so the LLM can start a query from the maintained catalog instead of scanning every file.
 
-| File | Function |
-|------|----------|
-| `index.md` | Catalog of pages, summaries, and categories |
-| `log.md` | Append-only timeline of ingests, queries, and lint passes |
+## `log.md`
 
-## Design Consequences
+`log.md` is chronological. It records ingests, queries, lint passes, and other operations with parseable headings, giving both the human and the LLM a history of recent changes.
 
-- The LLM should read `index.md` first when answering questions.
-- `log.md` provides recency awareness and operational memory.
-- Both files are small but structurally important because they make the wiki inspectable by humans and parsable by tools.
+## Why It Matters
 
-This concept is part of [[llm-wiki]] and becomes more important as the system matures beyond a handful of sources.
+The source argues that this structure works surprisingly well at moderate scale, delaying the need for heavier retrieval infrastructure.
+
+## Related Pages
+
+- [[local-search-layer]]
+- [[wiki-operations-loop]]
+- [[schema-as-operating-contract]]
