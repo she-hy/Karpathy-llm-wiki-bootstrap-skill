@@ -15,6 +15,7 @@ raw/            # Source documents (read-only)
 raw/assets/     # Images and attachments
 wiki/           # Your pages (read-write)
 wiki/index.md   # Content catalog — update on every ingest
+wiki/concept-table.md # Maintained concept map — update on every concept change
 wiki/log.md     # Append-only operation log
 wiki/overview.md # High-level synthesis — revise as understanding deepens
 ```
@@ -26,6 +27,7 @@ wiki/overview.md # High-level synthesis — revise as understanding deepens
 | Source summary | `wiki/sources/{slug}.md` | One per ingested source. Key claims, data, quotes. |
 | Entity | `wiki/entities/{name}.md` | Person, org, place, product — anything with identity. |
 | Concept | `wiki/concepts/{name}.md` | Idea, theory, framework, method. |
+| Concept table | `wiki/concept-table.md` | Maintained matrix of concepts, definitions, relationships, sources, confidence, and maintenance notes. |
 | Comparison | `wiki/comparisons/{a}-vs-{b}.md` | Side-by-side analysis of two+ entities or concepts. |
 | Synthesis | `wiki/synthesis/{topic}.md` | Cross-source analysis on a theme. |
 | Overview | `wiki/overview.md` | Top-level narrative of the entire knowledge base. |
@@ -39,7 +41,7 @@ Every wiki page MUST have YAML frontmatter:
 ```yaml
 ---
 title: Page Title
-type: source-summary | entity | concept | comparison | synthesis | overview
+type: source-summary | entity | concept | concept-table | comparison | synthesis | overview
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: [source-file-1.md, source-file-2.md]
@@ -70,8 +72,9 @@ Protocol:
 4. Update existing entity and concept pages that the source touches
 5. Create new entity/concept pages if the source introduces them
 6. Check for contradictions with existing wiki content — flag in both pages
-7. Update `wiki/index.md` — add entry under correct category
-8. Append to `wiki/log.md`:
+7. Update `wiki/concept-table.md` for every concept created, renamed, merged, split, deleted, or materially revised
+8. Update `wiki/index.md` — add entry under correct category
+9. Append to `wiki/log.md`:
 
    ```text
    ## [{DATE}] ingest | {Source Title}
@@ -81,7 +84,7 @@ Protocol:
    - Contradictions: {list or "none"}
    ```
 
-9. Review `wiki/overview.md` — if the new source changes the big picture, revise it
+10. Review `wiki/overview.md` — if the new source changes the big picture, revise it
 
 ### Query
 
@@ -89,12 +92,12 @@ Trigger: user asks a question about the wiki's domain.
 
 Protocol:
 
-1. Read `wiki/index.md` to locate relevant pages
+1. Read `wiki/index.md` to locate relevant pages; also read `wiki/concept-table.md` for conceptual, relationship, or landscape questions
 2. Read the relevant pages
 3. Synthesize an answer with inline citations to wiki pages
 4. If the answer produces a valuable artifact (comparison, analysis, connection):
    - Ask user: "This seems worth keeping. File it as a wiki page?"
-   - If yes → create appropriate page, update index and log
+   - If yes → create appropriate page, update `wiki/concept-table.md` if concepts changed, then update index and log
 
 ### Lint
 
@@ -108,6 +111,7 @@ Protocol:
    - Stale claims superseded by newer sources
    - Orphan pages (no inbound links from other pages)
    - Missing pages (concepts mentioned in `[[wikilinks]]` but page doesn't exist)
+   - Concept table drift (concept page exists but no row, row points to missing page, definition/status no longer matches page)
    - Weak areas (topics with only one source)
    - Missing cross-references between related pages
 3. Output a lint report as a numbered list
@@ -129,11 +133,31 @@ BM25 is optional, configurable through `EXTEND.md`, and never a source of truth.
 
 If BM25 is enabled:
 
-1. For query, read `wiki/index.md`, run `python3 scripts/wiki_fts.py search "{query}" --limit 10`, open returned pages, then answer with wiki citations.
+1. For query, read `wiki/index.md`, run `python3 scripts/wiki_fts.py stats`, rebuild if `Fresh: no`, run `python3 scripts/wiki_fts.py search "{query}" --limit 10`, open returned pages, then answer with wiki citations.
 2. For ingest, search BM25 before creating new entity, concept, comparison, synthesis, or domain-specific pages, so duplicate pages are avoided.
 3. After ingest, run `python3 scripts/wiki_fts.py build` if `auto_rebuild_after_ingest` is enabled in `EXTEND.md`.
 4. For lint, run `python3 scripts/wiki_fts.py stats`; if the index is stale, rebuild or record a warning.
 5. If BM25 fails and preferences allow fallback, continue with `wiki/index.md` and `rg`.
+
+Normal Query means LLM question answering: check freshness with `stats`, rebuild stale indexes when possible, use `search`, open returned `page_path` files, read full wiki context, and cite wiki pages. Export Use means operations, audit, migration, debugging, or external analysis; do not use exports as the normal query path when `search` is available.
+
+Search output fields:
+
+| Field | Meaning | Use |
+| --- | --- | --- |
+| `page_path` | Wiki page path containing the match, relative to the generated wiki/project root and including the `wiki/` prefix. | Open this page before answering. |
+| `heading_path` | Heading trail within the page. | Locate the relevant section. |
+| `chunk_id` | `{page_path}#{ordinal}` diagnostic identifier. | Do not cite. |
+| `score` | Query-local SQLite FTS5 BM25 score; lower is more relevant and values may be negative. | Rank candidates within one query only. |
+| `snippet` | Truncated chunk preview. | Never answer from snippet alone. |
+
+Never cite `chunk_id`, `score`, `indexes/fts.sqlite`, or `exports/*` as evidence in user-facing answers. BM25 data finds candidate pages; wiki pages are the citation targets.
+
+The BM25 data model is documented in `indexes/README.md`. Its exported rows have exactly these fields:
+
+```text
+chunk_id, page_path, title, type, heading_path, ordinal, sources, tags, updated, text
+```
 
 ## Index Protocol
 
@@ -141,6 +165,12 @@ If BM25 is enabled:
 
 ```markdown
 # Index
+
+## Core Maps
+| File | Purpose |
+|------|---------|
+| [overview.md](overview.md) | High-level synthesis of the whole wiki |
+| [concept-table.md](concept-table.md) | Maintained concept map with definitions, relationships, sources, status, and maintenance notes |
 
 ## Sources
 | File | Title | Date Added | Tags |
@@ -164,6 +194,33 @@ If BM25 is enabled:
 ```
 
 Update on every ingest. Keep entries sorted alphabetically within each section.
+
+## Concept Table Protocol
+
+`wiki/concept-table.md` is the LLM's compressed map of durable concepts. It complements `wiki/index.md`: the index catalogs pages, while the concept table explains what the concepts mean, how they relate, and what needs maintenance.
+
+Maintain this structure:
+
+```markdown
+## Maintenance Rules
+
+## Concept Clusters
+| Cluster | Concepts | Current interpretation |
+| --- | --- | --- |
+
+## Concepts
+| Concept | Working definition | Role in this wiki | Sources | Related pages | Status | Maintenance note |
+| --- | --- | --- | --- | --- | --- | --- |
+```
+
+Rules:
+
+- Keep one row for every durable concept page under `wiki/concepts/`.
+- Update the row whenever a concept page is created, renamed, deleted, merged, split, or materially revised.
+- Keep rows sorted alphabetically by concept name.
+- Keep definitions concise and evidence-aware; link to the full concept page for detail.
+- Use `Status` values such as `high confidence`, `single-source`, `tentative`, `needs sources`, or `contradicted`.
+- Column headers stay English as protocol identifiers; row content follows the language of the relevant concept page.
 
 ## Log Protocol
 

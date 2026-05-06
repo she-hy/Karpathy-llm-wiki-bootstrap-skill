@@ -19,6 +19,7 @@ This file is intentionally short. Load detailed references only for the operatio
 ## Operating Model
 
 - Keep `SCHEMA.md` as the single source of truth inside every generated wiki.
+- Keep `wiki/concept-table.md` as the maintained concept map: it complements `wiki/index.md` by summarizing durable concepts, relationships, sources, status, and maintenance notes.
 - Keep `CLAUDE.md`, `AGENTS.md`, and `.github/copilot-instructions.md` as thin pointers to `SCHEMA.md`; never duplicate operating rules into them.
 - Treat `raw/` as read-only evidence. Create and update derived knowledge only under `wiki/`.
 - Apply `EXTEND.md` preferences before bootstrap, ingest, query, lint, or BM25 work.
@@ -73,6 +74,7 @@ A successful bootstrap creates a wiki root containing:
 ```text
 raw/
 wiki/index.md
+wiki/concept-table.md
 wiki/log.md
 wiki/overview.md
 SCHEMA.md

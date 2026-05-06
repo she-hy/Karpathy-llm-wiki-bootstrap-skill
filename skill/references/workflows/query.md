@@ -16,13 +16,16 @@ If `bm25.mode: auto_prompt`, check configured thresholds. If reached and BM25 is
 
 ### Step 1: Navigate via Index
 
-Read `wiki/index.md`. Identify all pages potentially relevant to the query. If the wiki has a search tool configured, use it instead.
+Read `wiki/index.md`. For conceptual, relationship, taxonomy, or landscape questions, also read `wiki/concept-table.md` before choosing pages. Identify pages potentially relevant to the query. If BM25 is configured, use it as an additional candidate finder after reading the index, not as a replacement for the index.
 
 If BM25 is enabled, use it after reading the index:
 
 ```bash
+python3 scripts/wiki_fts.py stats
 python3 scripts/wiki_fts.py search "{user question or extracted query terms}" --limit 10
 ```
+
+If `stats` reports `Fresh: no`, run `python3 scripts/wiki_fts.py rebuild` before searching. If rebuild fails and `fallback_to_rg: true`, continue with `rg` plus `wiki/index.md`.
 
 BM25 returns candidate chunks only. Do not answer from snippets alone. Open the returned pages and read the full relevant context.
 
@@ -64,8 +67,9 @@ If user agrees:
 
 1. Create the page with proper frontmatter
 2. Add cross-references to/from related pages
-3. Update `wiki/index.md`
-4. Append to `wiki/log.md`:
+3. Update `wiki/concept-table.md` if the filed answer creates, renames, merges, splits, or materially revises durable concepts
+4. Update `wiki/index.md`
+5. Append to `wiki/log.md`:
 
    ```text
    ## [{date}] query-filed | {title}

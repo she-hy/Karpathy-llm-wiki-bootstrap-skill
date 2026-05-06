@@ -38,6 +38,7 @@ Create this base tree under `{wiki-root}/`:
 │   └── assets/             # only when image / diagram sources are selected
 ├── wiki/
 │   ├── index.md
+│   ├── concept-table.md
 │   ├── log.md
 │   └── overview.md
 ├── SCHEMA.md
@@ -116,10 +117,11 @@ Create these seed pages:
 | File | Template | Customization |
 | --- | --- | --- |
 | `wiki/index.md` | `references/templates/index.md` | Add universal sections plus domain-specific sections. |
+| `wiki/concept-table.md` | `references/templates/concept-table.md` | Fill `{DATE}` with the current date; leave concept rows empty. |
 | `wiki/log.md` | `references/templates/log.md` | Add the first wiki creation entry with the current date. |
 | `wiki/overview.md` | `references/templates/overview.md` | Add a short stub explaining the wiki purpose and domain. |
 
-Universal index sections: Sources, Entities, Concepts, Comparisons, Synthesis.
+Universal index sections: Core Maps, Sources, Entities, Concepts, Comparisons, Synthesis.
 
 Domain-specific index sections:
 
@@ -157,6 +159,7 @@ Wiki scaffolded at {wiki-root}/
 Structure:
   raw/          -> Drop source documents here
   wiki/         -> LLM-maintained pages
+  wiki/concept-table.md -> Maintained concept map
   SCHEMA.md     -> Single source of truth for agent behavior
 
 Pointer files:

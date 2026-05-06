@@ -78,6 +78,7 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 5. 第一次 ingest 完成后，重点查看这几个文件：
 
    - `llm-wiki-demo/wiki/index.md`
+   - `llm-wiki-demo/wiki/concept-table.md`
    - `llm-wiki-demo/wiki/log.md`
    - `llm-wiki-demo/wiki/overview.md`
 
@@ -85,7 +86,7 @@ npx skills add nanzhipro/Karpathy-llm-wiki-bootstrap-skill@llm-wiki-bootstrap -g
 
 - `wiki/sources/` 下生成了一页 source summary
 - 如果 agent 识别出了关键概念或实体，还会创建新的概念页或实体页
-- `index`、`log` 和 `overview` 都会被同步更新
+- `index`、`concept-table`、`log` 和 `overview` 都会被同步更新
 
 如果你想先看一份已经跑完的结果，再决定自己动手，可以直接打开 [llm-wiki/](./llm-wiki)。
 
@@ -139,6 +140,7 @@ llm-wiki/
 │   └── llm-wiki-pattern.md
 └── wiki/
     ├── index.md
+   ├── concept-table.md
     ├── log.md
     ├── overview.md
     ├── concepts/
@@ -153,6 +155,7 @@ llm-wiki/
 - [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md)，看权威的 agent 操作指令
 - [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md)，看运行时指针文件长什么样
 - [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md)，看 Agent 如何导航整个知识库
+- [llm-wiki/wiki/concept-table.md](./llm-wiki/wiki/concept-table.md)，看持续维护的概念地图
 - [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md)，看按时间顺序记录的操作历史
 - [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md)，看当前阶段的顶层综合判断
 
@@ -213,6 +216,7 @@ ln -s /absolute/path/to/.agent/skills/llm-wiki-bootstrap ~/.codex/skills/llm-wik
 ├── raw/
 ├── wiki/
 │   ├── index.md
+│   ├── concept-table.md
 │   ├── log.md
 │   └── overview.md
 ├── SCHEMA.md            # 一定会生成——单一真源

@@ -15,6 +15,7 @@ raw/             # Source documents (read-only)
 raw/assets/      # Images and attachments
 wiki/            # Your pages (read-write)
 wiki/index.md    # Content catalog — update on every ingest
+wiki/concept-table.md # Maintained concept map — update on every concept change
 wiki/log.md      # Append-only operation log
 wiki/overview.md # High-level synthesis — revise as understanding deepens
 ```
@@ -22,10 +23,11 @@ wiki/overview.md # High-level synthesis — revise as understanding deepens
 ## Page Types
 
 | Type | Filename pattern | Purpose |
-|------|------------------|---------|
+| --- | --- | --- |
 | Source summary | `wiki/sources/{slug}.md` | One per ingested source. Key claims, data, quotes. |
 | Entity | `wiki/entities/{name}.md` | Person, org, place, product — anything with identity. |
 | Concept | `wiki/concepts/{name}.md` | Idea, theory, framework, method. |
+| Concept table | `wiki/concept-table.md` | Maintained matrix of concepts, definitions, relationships, sources, confidence, and maintenance notes. |
 | Comparison | `wiki/comparisons/{a}-vs-{b}.md` | Side-by-side analysis of two+ entities or concepts. |
 | Synthesis | `wiki/synthesis/{topic}.md` | Cross-source analysis on a theme. |
 | Overview | `wiki/overview.md` | Top-level narrative of the entire knowledge base. |
@@ -41,7 +43,7 @@ Every wiki page MUST have YAML frontmatter:
 ```yaml
 ---
 title: Page Title
-type: source-summary | entity | concept | comparison | synthesis | overview | paper-summary | claim | method | dataset
+type: source-summary | entity | concept | concept-table | comparison | synthesis | overview | paper-summary | claim | method | dataset
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 sources: [source-file-1.md, source-file-2.md]
@@ -50,6 +52,7 @@ tags: [tag1, tag2]
 ```
 
 Body conventions:
+
 - Use `[[wikilink]]` syntax for internal cross-references
 - Cite sources inline: `[Source Title](../sources/{slug}.md)`
 - Flag contradictions explicitly: `> ⚠️ CONTRADICTION: Source A claims X, Source B claims Y.`
@@ -63,14 +66,17 @@ Body conventions:
 Trigger: user adds a file to `raw/` and says `ingest {filename}`.
 
 Protocol:
+
 1. Read the source file completely
 2. Discuss key takeaways with user (2-3 bullet points, ask if emphasis is correct)
 3. Create `wiki/sources/{slug}.md` — structured summary with claims, data, quotes
 4. Update existing entity and concept pages that the source touches
 5. Create new entity, concept, method, claim, or dataset pages if the source introduces them
 6. Check for contradictions with existing wiki content — flag in both pages
-7. Update `wiki/index.md` — add entry under correct category
-8. Append to `wiki/log.md`:
+7. Update `wiki/concept-table.md` for every concept created, renamed, merged, split, deleted, or materially revised
+8. Update `wiki/index.md` — add entry under correct category
+9. Append to `wiki/log.md`:
+
    ```text
    ## [YYYY-MM-DD] ingest | {Source Title}
    - Summary: wiki/sources/{slug}.md
@@ -78,36 +84,41 @@ Protocol:
    - New pages: {list of created pages}
    - Contradictions: {list or "none"}
    ```
-9. Review `wiki/overview.md` — if the new source changes the big picture, revise it
+
+10. Review `wiki/overview.md` — if the new source changes the big picture, revise it
 
 ### Query
 
 Trigger: user asks a question about the wiki's domain.
 
 Protocol:
-1. Read `wiki/index.md` to locate relevant pages
+
+1. Read `wiki/index.md` to locate relevant pages; also read `wiki/concept-table.md` for conceptual, relationship, or landscape questions
 2. Read the relevant pages
 3. Synthesize an answer with inline citations to wiki pages
 4. If the answer produces a valuable artifact (comparison, analysis, connection):
    - Ask user: "This seems worth keeping. File it as a wiki page?"
-   - If yes, create the appropriate page and update index and log
+   - If yes, create the appropriate page, update `wiki/concept-table.md` if concepts changed, then update index and log
 
 ### Lint
 
 Trigger: user says `lint`, `health check`, or `review wiki`.
 
 Protocol:
+
 1. Read `wiki/index.md` and all listed pages
 2. Check for:
    - Contradictions between pages (flag with specific quotes)
    - Stale claims superseded by newer sources
    - Orphan pages (no inbound links from other pages)
    - Missing pages (concepts mentioned in `[[wikilinks]]` but page doesn't exist)
+   - Concept table drift (concept page exists but no row, row points to missing page, definition/status no longer matches page)
    - Weak areas (topics with only one source)
    - Missing cross-references between related pages
 3. Output a lint report as a numbered list
 4. Ask user which items to fix
 5. Execute fixes, update log:
+
    ```text
    ## [YYYY-MM-DD] lint
    - Issues found: {count}
@@ -121,6 +132,12 @@ Protocol:
 
 ```markdown
 # Index
+
+## Core Maps
+| File | Purpose |
+|------|---------|
+| [overview.md](overview.md) | High-level synthesis of the whole wiki |
+| [concept-table.md](concept-table.md) | Maintained concept map with definitions, relationships, sources, status, and maintenance notes |
 
 ## Sources
 | File | Title | Date Added | Tags |
@@ -160,6 +177,33 @@ Protocol:
 ```
 
 Update on every ingest. Keep entries sorted alphabetically within each section.
+
+## Concept Table Protocol
+
+`wiki/concept-table.md` is the LLM's compressed map of durable concepts. It complements `wiki/index.md`: the index catalogs pages, while the concept table explains what the concepts mean, how they relate, and what needs maintenance.
+
+Maintain this structure:
+
+```markdown
+## Maintenance Rules
+
+## Concept Clusters
+| Cluster | Concepts | Current interpretation |
+| --- | --- | --- |
+
+## Concepts
+| Concept | Working definition | Role in this wiki | Sources | Related pages | Status | Maintenance note |
+| --- | --- | --- | --- | --- | --- | --- |
+```
+
+Rules:
+
+- Keep one row for every durable concept page under `wiki/concepts/`.
+- Update the row whenever a concept page is created, renamed, deleted, merged, split, or materially revised.
+- Keep rows sorted alphabetically by concept name.
+- Keep definitions concise and evidence-aware; link to the full concept page for detail.
+- Use `Status` values such as `high confidence`, `single-source`, `tentative`, `needs sources`, or `contradicted`.
+- Column headers stay English as protocol identifiers; row content follows the language of the relevant concept page.
 
 ## Log Protocol
 

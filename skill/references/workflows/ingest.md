@@ -93,19 +93,39 @@ For each entity and concept the source touches:
 > Resolution: {pending | Source B supersedes (newer data) | both valid in different contexts}
 ```
 
-### Step 5: Update Index
+### Step 5: Update Concept Table
+
+Update `wiki/concept-table.md` for every concept created, renamed, merged,
+split, deleted, or materially revised during ingest.
+
+For each concept row, keep these fields current:
+
+| Field | Maintenance rule |
+| --- | --- |
+| `Concept` | Link to the durable concept page under `wiki/concepts/`. |
+| `Working definition` | One concise, evidence-aware definition. |
+| `Role in this wiki` | Why the concept matters to the current knowledge base. |
+| `Sources` | Source filenames only, matching page frontmatter style. |
+| `Related pages` | Important concepts, entities, comparisons, or synthesis pages. |
+| `Status` | `high confidence`, `single-source`, `tentative`, `needs sources`, or `contradicted`. |
+| `Maintenance note` | What future ingest or lint should watch for. |
+
+Keep concept rows sorted alphabetically. If the new source changes the concept
+landscape, also update the `Concept Clusters` section.
+
+### Step 6: Update Index
 
 Add source entry to `wiki/index.md` Sources table. Add/update entity and concept entries.
 
-### Step 6: Update Log
+### Step 7: Update Log
 
 Append structured entry to `wiki/log.md`.
 
-### Step 7: Revise Overview
+### Step 8: Revise Overview
 
 Re-read `wiki/overview.md` and assess whether the new source changes the big picture. If yes, revise. If no, skip. Even for small wikis, keep the overview current — a single source can reshape the narrative.
 
-### Step 8: Refresh Search Index
+### Step 9: Refresh Search Index
 
 If BM25 is enabled and `auto_rebuild_after_ingest: true`:
 
@@ -123,7 +143,7 @@ When processing multiple sources at once:
 1. Process sequentially (not in parallel — each source may affect the next)
 2. Skip Step 2 (user discussion) unless contradictions are found
 3. Consolidate log entries into a single batch entry
-4. Revise overview once at the end, not after each source
+4. Revise `wiki/concept-table.md` and `wiki/overview.md` once at the end, not after each source
 5. Rebuild BM25 once at the end if enabled and configured for automatic rebuild
 
 ## Edge Cases

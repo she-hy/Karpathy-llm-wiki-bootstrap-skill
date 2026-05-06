@@ -16,13 +16,14 @@ If `bm25.mode: auto_prompt`, check configured thresholds. If reached and BM25 is
 
 ### Step 1: Full Scan
 
-Read `wiki/index.md`, then read every page listed. Build an internal model of:
+Read `wiki/index.md` and `wiki/concept-table.md`, then read every page listed. Build an internal model of:
 
 - All pages and their types
 - All `[[wikilinks]]` and their targets
 - All `sources` frontmatter entries
 - All contradiction blocks
 - All tags
+- All concept table rows, statuses, related pages, and maintenance notes
 
 If BM25 is enabled, also run:
 
@@ -44,6 +45,7 @@ Execute each check category. Collect findings as a numbered list.
 | Broken wikilinks | `[[target]]` has no matching file | High |
 | Missing pages | Concept/entity mentioned 3+ times across pages but has no dedicated page | Medium |
 | Index drift | Page exists in `wiki/` but not listed in `index.md` | High |
+| Concept table drift | Concept page exists without a row, row points to a missing concept page, or row definition/status conflicts with the page | Medium |
 | Empty pages | Page has frontmatter but no meaningful body content | Low |
 
 #### 2.2 Content Checks
@@ -53,6 +55,7 @@ Execute each check category. Collect findings as a numbered list.
 | Unresolved contradictions | Contradiction block with `Resolution: pending` older than 2 ingests | Medium |
 | Stale claims | Page claims X, but a newer source (by date) contradicts it without the page being updated | High |
 | Single-source concepts | Concept page backed by only 1 source | Low |
+| Stale concept table status | Concept row status or maintenance note is no longer supported by the concept page and sources | Medium |
 | Outdated overview | `wiki/overview.md` not updated since 3+ ingests ago | Medium |
 
 #### 2.3 Cross-reference Checks

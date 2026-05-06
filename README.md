@@ -78,6 +78,7 @@ The single source of truth is always `SCHEMA.md`. `AGENTS.md` (Codex) and `CLAUD
 5. After the first ingest, inspect these files:
 
    - `llm-wiki-demo/wiki/index.md`
+   - `llm-wiki-demo/wiki/concept-table.md`
    - `llm-wiki-demo/wiki/log.md`
    - `llm-wiki-demo/wiki/overview.md`
 
@@ -85,7 +86,7 @@ What you should expect after that first run:
 
 - a source summary page under `wiki/sources/`
 - new concept or entity pages if the agent identifies them
-- an updated index, log, and overview
+- an updated index, concept table, log, and overview
 
 If you want to see what a completed run looks like before trying it yourself, open [llm-wiki/](./llm-wiki).
 
@@ -139,6 +140,7 @@ llm-wiki/
 │   └── llm-wiki-pattern.md
 └── wiki/
     ├── index.md
+   ├── concept-table.md
     ├── log.md
     ├── overview.md
     ├── concepts/
@@ -153,6 +155,7 @@ Useful entry points:
 - [llm-wiki/SCHEMA.md](./llm-wiki/SCHEMA.md) for the authoritative agent instructions
 - [llm-wiki/AGENTS.md](./llm-wiki/AGENTS.md) to see what a thin runtime pointer looks like
 - [llm-wiki/wiki/index.md](./llm-wiki/wiki/index.md) for the catalog the agent navigates through
+- [llm-wiki/wiki/concept-table.md](./llm-wiki/wiki/concept-table.md) for the maintained concept map
 - [llm-wiki/wiki/log.md](./llm-wiki/wiki/log.md) for the chronological operation history
 - [llm-wiki/wiki/overview.md](./llm-wiki/wiki/overview.md) for the current top-level synthesis
 
@@ -213,6 +216,7 @@ When you bootstrap a new wiki, the generated structure looks like this:
 ├── raw/
 ├── wiki/
 │   ├── index.md
+│   ├── concept-table.md
 │   ├── log.md
 │   └── overview.md
 ├── SCHEMA.md            # Always generated — single source of truth
